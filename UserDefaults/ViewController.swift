@@ -8,29 +8,31 @@
 import UIKit
 
 enum UserDefaultsKeys {
-    static let keyForBool = "boolKey"
+    static let userSettings = "userSettings"
 }
 
 class ViewController: UIViewController {
     
     var userDefaults = UserDefaults.standard
-    let keyForBool = "someBool"
-
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        var someBool = true
+        let settings = UserSettings(authorized: true)
         
-        userDefaults.set(someBool, forKey: UserDefaultsKeys.keyForBool)
-        userDefaults.synchronize()
+        let settingsData = try? NSKeyedArchiver.archivedData(withRootObject: [settings, settings], requiringSecureCoding: false)
+        
+        userDefaults.set(settingsData, forKey: UserDefaultsKeys.userSettings)
     }
-
+    
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
         
-        let bool = userDefaults.bool(forKey: UserDefaultsKeys.keyForBool)
-        print("\(bool)")
+        if let userSettingsData = userDefaults.object(forKey: UserDefaultsKeys.userSettings) as? Data,
+           let userSettings = try? NSKeyedUnarchiver.unarchiveTopLevelObjectWithData(userSettingsData) as? [UserSettings] {
+            print("\(userSettings)")
+        }
     }
-
+    
 }
 
