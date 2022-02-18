@@ -7,13 +7,30 @@
 
 import UIKit
 
+enum UserDefaultsKeys {
+    static let keyForBool = "boolKey"
+}
+
 class ViewController: UIViewController {
+    
+    var userDefaults = UserDefaults.standard
+    let keyForBool = "someBool"
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        // Do any additional setup after loading the view.
+        
+        var someBool = true
+        
+        userDefaults.set(someBool, forKey: UserDefaultsKeys.keyForBool)
+        userDefaults.synchronize()
     }
 
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+        
+        let bool = userDefaults.bool(forKey: UserDefaultsKeys.keyForBool)
+        print("\(bool)")
+    }
 
 }
 
