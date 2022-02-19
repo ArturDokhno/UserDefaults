@@ -9,6 +9,7 @@ import UIKit
 
 enum UserDefaultsKeys {
     static let userSettings = "userSettings"
+    static let userSettingsStruct = "userSettingsStruct"
 }
 
 class ViewController: UIViewController {
@@ -23,6 +24,11 @@ class ViewController: UIViewController {
         let settingsData = try? NSKeyedArchiver.archivedData(withRootObject: [settings, settings], requiringSecureCoding: false)
         
         userDefaults.set(settingsData, forKey: UserDefaultsKeys.userSettings)
+        
+        let encoder = JSONEncoder()
+        let settingsStruct = UserSettingsStruct(isAuthorized: true)
+        let jsonData = try! encoder.encode(settingsStruct)
+        userDefaults.set(jsonData, forKey: UserDefaultsKeys.userSettingsStruct)
     }
     
     override func viewDidAppear(_ animated: Bool) {
@@ -30,8 +36,18 @@ class ViewController: UIViewController {
         
         if let userSettingsData = userDefaults.object(forKey: UserDefaultsKeys.userSettings) as? Data,
            let userSettings = try? NSKeyedUnarchiver.unarchiveTopLevelObjectWithData(userSettingsData) as? [UserSettings] {
-            print("\(userSettings)")
+            print("Settings: \(userSettings)")
         }
+        
+        if let userSettingsData = userDefaults.object(forKey: UserDefaultsKeys.userSettingsStruct) as? Data {
+            
+            let decoder = JSONDecoder()
+            
+            guard let model = try? decoder.decode(UserSettingsStruct.self, from: userSettingsData) else { return }
+            
+            print("SettingsStruct: \(model)")
+        }
+        
     }
     
 }
